@@ -91,3 +91,20 @@ plot(dvidif, col=cld)
 dev.off()
 
 
+########## day 3 #######
+install.packages("ggplot2") # for new graphical properties
+
+install.packages("gridExtra") # for new multiframe properties
+
+install.packages("ncdf4") # for managing Copernicus data
+
+or simply
+
+install.packages(c("ggplot2","gridExtra","ncdf4"))
+
+install.packages("RStoolbox") # install the package RStoolbox (https://cran.r-project.org/web/packages/RStoolbox/index.html)
+
+
+
+
+
