@@ -38,6 +38,7 @@ plotRGB(l2006, r=1, g=2, b=3, stretch="Lin")
 # defor1_.2 = red
 # defor1_.3 = green
 
+
 # Now plot the two images together with the par function
 par(mfrow = c(2,1)) #mfrow function with 2=row and 1=column
 plotRGB(l1992, r=1, g=2, b=3, stretch="Lin") 
