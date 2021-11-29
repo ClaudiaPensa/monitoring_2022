@@ -4,10 +4,10 @@
 # R code for chemical cycling study
 # Time series of NO2 change in Europe during the lockdown
 
+library(raster)
+
 # set the working directory 
 setwd("/Users/account2/Desktop/lab/en/")
-
-library(raster)
 
 # Use raster function bcs the images have the same layer https://www.rdocumentation.org/packages/raster/versions/3.5-2/topics/raster
 
@@ -87,9 +87,50 @@ plotRGB(EN, r=1, g=7, b=13, stretch="lin")
 # the yellow part is the area that mantain the emission of NO2 costant like the Pianura Padana
 
 
+################# day 2 ################
+
+# Importing all the data together with the lapply function 
+# lapply function 
+#https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/lapply
 
 
+# recall the library(raster)
 
+library(raster)
 
+# set the working directory ("path") 
+setwd("/Users/account2/Desktop/lab/en/")
 
+# first of all make a list of images with the function list.files 
+#https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/list.files
+rlist <- list.files(pattern="EN")
+rlist
 
+list_rast <- lapply(rlist, raster) ##https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/lapply
+list_rast # all of the file ,one after the other, imported .
+
+# Now use the stack function to plot all the images together 
+EN_stack <- stack(list_rast)
+EN_stack
+
+#plot everything together 
+cl <- colorRampPalette(c("red", "orange", "yellow"))(100) # using this col
+plot(EN_stack, col = cl) 
+
+# Exercise : Plot only the first image of the stack
+# first check the name of the first image on R and then plot this using the same colorRampPalette
+plot(EN_stack$EN_0001, col = cl)
+
+#difference 
+# image of decrease 
+ENdif <- (EN_stack$EN_0001 - EN_stack$EN_0013)
+cldif <- colorRampPalette(c("blue", "white", "red"))(100)
+plot(ENdif, col=cldif)
+# red part --> high change between the two images --> higher decrease of NO2 
+
+######################################
+
+# automated processing source function 
+# https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/source
+
+source("R_code_automatic_source.txt") 
