@@ -63,7 +63,7 @@ propagri <- 34673 / total          # value of the frequencies/tot number
 # propagri = 0.1015934 ~ 0.10 = 10% of agri
 
 ##### build a dataframe #####
-https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/data.frame
+#https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/data.frame
 
 cover <- c("Forest", "Agriculture")
 prop1992 <- c(0.8984066, 0.1015934) 
@@ -105,6 +105,7 @@ propagri2006 <- 164909/ total
 #propforest 0.5188314
 #propagri 0.4811686
 
+# Build a dataframe
 cover <- c("Forest", "Agriculture")
 prop1992 <- c(propforest,propagri)
 prop2006 <- c(propforest2006,propagri2006)
@@ -133,3 +134,28 @@ grid.arrange(p1, p2, nrow=1)
 p2 <- ggplot(proportion, aes(x=cover, y=prop2006, color=cover)) + geom_bar(stat="identity", fill="white") + ylim(0,1)
 p1 <- ggplot(proportion, aes(x=cover, y=prop1992, color=cover)) + geom_bar(stat="identity", fill="white") + ylim(0,1)
 
+# plot two graphs with gridExtra package
+grid.arrange(p1, p2, nrow=1)
+
+# or with patchwork
+p1 + p2
+p1/p2  #one graph on top of the other 
+
+# patchwork is working even with raster data, but they should be plotted with ggRGB  that create a ggplot to plot 
+# https://www.rdocumentation.org/packages/RStoolbox/versions/0.2.6/topics/ggRGB
+
+plotRGB(l1992, r=1, g=2, b=3, stretch="Lin")
+
+# patchwork
+gp1 <- ggRGB(l1992, r=1, g=2, b=3, stretch="lin")
+gp2 <- ggRGB(l1992, r=1, g=2, b=3, stretch="hist")
+gp3 <- ggRGB(l1992, r=1, g=2, b=3, stretch="sqrt")
+gp4 <- ggRGB(l1992, r=1, g=2, b=3, stretch="log")
+
+gp1 + gp2 + gp3 + gp4
+
+#multitemporal patchwork
+gp1 <- ggRGB(l1992, r=1, g=2, b=3)
+gp5 <- ggRGB(l2006, r=1, g=2, b=3)
+ 
+gp1 + gp5
