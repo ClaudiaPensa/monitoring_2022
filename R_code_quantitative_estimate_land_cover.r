@@ -127,9 +127,9 @@ ggplot(proportion1992, aes(x=cover, y=prop1992, color=cover)) + geom_bar(stat="i
 library(gridExtra) #recall the library
 p1 <- ggplot(proportion1992, aes(x=cover, y=prop1992, color=cover)) + geom_bar(stat="identity", fill="white")
 p2 <- ggplot(proportion, aes(x=cover, y=prop2006, color=cover)) + geom_bar(stat="identity", fill="white")
-grid.arrange(p1, p2, nrows=1)
+grid.arrange(p1, p2, nrow=1)
 
 
 p2 <- ggplot(proportion, aes(x=cover, y=prop2006, color=cover)) + geom_bar(stat="identity", fill="white") + ylim(0,1)
 p1 <- ggplot(proportion, aes(x=cover, y=prop1992, color=cover)) + geom_bar(stat="identity", fill="white") + ylim(0,1)
-####arrangeGrob(p1, p2, nrows=1)???
+
