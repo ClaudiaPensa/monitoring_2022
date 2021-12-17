@@ -30,9 +30,67 @@ library(RStoolbox)
 library(ggplot2)
 
 # ggplot and add geom raster, the geometry we want to use (e.g. histograms) 
-ggplot() + geom_raster(soilwaterindex20211211, mapping = aes(x=x, y=y, fill=Surface.State.Flag))
+ggplot() + 
+geom_raster(soilwaterindex20211211, mapping = aes(x=x, y=y, fill=Surface.State.Flag))
 # ggplot with viridis
 # scale_fill_viridis function is the function we use to change the colours 
 
-ggplot() +geom_raster(soilwaterindex20211211, mapping = aes(x=x, y=y, fill=Surface.State.Flag )) + scale_fill_viridis(option="cividis") + ggtitle("cividis palette")
+ggplot() +
+geom_raster(soilwaterindex20211211, mapping = aes(x=x, y=y, fill=Surface.State.Flag )) + 
+scale_fill_viridis(option="cividis") + 
+ggtitle("cividis palette")
 
+#### day 3 #####
+# importing data with lapply function
+rlist <- list.files(pattern= "SWI") 
+rlist
+
+list_rast <- lapply(rlist, raster)
+list_rast
+
+swistack <- stack(list_rast)
+swistack
+
+swisummer <- swistack$Surface.State.Flag.1
+swiwinter <- swistack$Surface.State.Flag.2
+
+# plot of SWI in summer
+p1 <- ggplot() +
+geom_raster(swisummer, mapping = aes(x=x, y=y, fill=Surface.State.Flag.1 )) + 
+scale_fill_viridis(option="viridis") +
+ggtitle("Soil water index in summer") #fill = variable name 
+
+# plot of SWI in winter 
+p2 <- ggplot() +
+geom_raster(swiwinter, mapping = aes(x=x, y=y, fill=Surface.State.Flag.2 )) + 
+scale_fill_viridis(option="viridis") +
+ggtitle("Soil water index in winter") #fill = variable name 
+
+# let's patchwork them together
+library(patchwork)
+p1 / p2 
+
+
+### You can crop your image on certain area ####
+
+# longitude from 0 to 20
+# latitude from 30 to 50
+ext <- c(0, 20, 30, 50)
+swisummer_cropped <- crop(swisummer,ext)
+swiwinter_cropped <- crop(swiwinter,ext)
+
+plot(swisummer_cropped)
+plot(swiwinter_cropped)
+
+p1_cropped <- ggplot() +
+geom_raster(swisummer_cropped, mapping = aes(x=x, y=y, fill=Surface.State.Flag.1 )) + 
+scale_fill_viridis(option="viridis") +
+ggtitle("Soil water index in summer") #fill = variable name 
+
+p2_cropped <- ggplot() +
+geom_raster(swiwinter_cropped, mapping = aes(x=x, y=y, fill=Surface.State.Flag.2 )) + 
+scale_fill_viridis(option="viridis") +
+ggtitle("Soil water index in winter") #fill = variable name
+
+#plot together the two plot cropped
+p1_cropped / p2_cropped
