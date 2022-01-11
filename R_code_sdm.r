@@ -84,5 +84,30 @@ points(presences, pch=19)
 # pch argument in r
 # points scattered in space
 
+# day 2 # 11/01/22 #
+# importing the source script
 
+# Set the working directory, not to upload the data but the entire script
+setwd("/Users/account2/Desktop/lab/")
+# with the source function: read R code from a file
+source("R_code_source_sdm.r")
+
+# in the theoretical slide of SDMs we should use individuals of a species and predictors
+preds 
+# these are the predictors : elevation, precipitation, temperature, vegetation (environmental variables)
+
+# Let's explain to the model what are the training and the predictors
+datasdm <- sdmData(train = species, predictors = preds) 
+#species is the dataset imported which contains presences and absences
+# class = description of a certain object and in this case is sdmdata
+# number of species = 1
+# species names = Occurrence
+# number of features = 4 (n. of predictors)
+# type of data = Presence-Absence
+
+# model 1
+m1 <- sdm(Occurrence~temperature+elevation+precipitation+vegetation, data=datasdm, method="glm") 
+# where the y variable = Occurrence , x variable = all the preds 
+
+# use the model to make the prediction : probability of presence based on this model 
 
