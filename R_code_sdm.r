@@ -98,6 +98,7 @@ preds
 
 # Let's explain to the model what are the training and the predictors
 datasdm <- sdmData(train = species, predictors = preds) 
+datasdm
 #species is the dataset imported which contains presences and absences
 # class = description of a certain object and in this case is sdmdata
 # number of species = 1
@@ -105,9 +106,30 @@ datasdm <- sdmData(train = species, predictors = preds)
 # number of features = 4 (n. of predictors)
 # type of data = Presence-Absence
 
-# model 1
+# MODEL 1 #
 m1 <- sdm(Occurrence~temperature+elevation+precipitation+vegetation, data=datasdm, method="glm") 
+# generalized linear model
 # where the y variable = Occurrence , x variable = all the preds 
 
 # use the model to make the prediction : probability of presence based on this model 
+# apply the formula to every single predictor
+p1 <- predict(m1, newdata = preds) 
+p1
+
+# now make the plot of the prediction (p1) : map probability
+plot(p1, col=cl)
+# probability of presence of a species 
+# plot the presence on top of this (add)
+points(presences, pch=19)
+# this is the final map
+# prediction of presence of a species : quite good 
+
+# finally stack with everything all together 
+
+s1 <- stack(preds, p1) 
+plot(s1, col=cl)
+
+# change the names in the plot of the stack with the function "names"
+names(s1) <- c("Elevation", "Precipitation", "Temperature", "Vegetation", "Probability")
+plot(s1, col=cl)
 
