@@ -7,14 +7,14 @@ install.packages("sdm")
 library(sdm)
 library(raster) # predictors are environmental variable, predict where the species can be found over space
 library(rgdal) # species for coordinate data, vector data #OSGeo website
-# species : an array of x,y coordinate
+# Species : an array of x,y coordinate
 # Species at higher temperature do not resist
-# or : install.packages(c("sdm","rgdal")
+# or: install.packages(c("sdm","rgdal")
 
 # Now use the system file function in R that showing all the files in a certain packages
 #https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/system.file
 
-# species data 
+# Species data 
 file <- system.file("external/species.shp", package="sdm")
 file # path in which you have the data
 
@@ -30,10 +30,10 @@ species <- shapefile(file) #exactly as the raster function for raster files
 # 1 = means that there is the species 
 # 0 = means that there is not the species 
 
-# looking the occurrence
+# Looking the occurrence
 species$Occurrence
 
-# how many occurrence are there? Subset a Dataframe
+# How many occurrence are there? Subset a Dataframe
 presences <- species[species$Occurrence == 1,] 
 # == 1 number of occurrence = 1 (real occurrence) 
 
@@ -41,17 +41,16 @@ absences <- species[species$Occurrence == 0,]
 # == 0 means no species 
 
 
-# plot all of the species
-
+# Now plot all of the species
 plot(species, pch=19)
 
-# plot the presences (occurrence == 1)
+# Plot the presences (occurrence == 1)
 plot(presences, pch=19, col="blue") #lower amount of point with respect to the species plot
 # plot presences and absences with the function "Points"
 # https://www.rdocumentation.org/packages/graphics/versions/3.6.2/topics/points
 points(absences, pch=19, col="red") 
 
-# let's look at the predictors 
+# Let's look at the predictors 
 path <- system.file("external", package="sdm") 
 
 lst <- list.files(path, pattern="asc", full.names=TRUE) #asc extension is the common pattern
@@ -59,27 +58,26 @@ lst <- list.files(path, pattern="asc", full.names=TRUE) #asc extension is the co
 # but in this case it is not needed since the data are inside the package and they have an asc extension
 preds <- stack(lst) # preds = predictor
 
-# plot preds
+# Now plot preds
 cl <- colorRampPalette(c("blue","orange","red","yellow")) (100)
 plot(preds, col=cl)
 
-# plot only elevation and on top of elevation the presences 
+# Plot only elevation and the presences on top of elevation
 plot(preds$elevation, col=cl)
 points(presences, pch=19)
-# the species are mainly at low elevation
+# The species are mainly at low elevation
 
-# plot only temperature and on top of T° the presences
+# Plot only temperature and the presences on top of T° 
 plot(preds$temperature, col=cl)
 points(presences, pch=19)
 
-# same for vegetation
+# Plot only vegetation and the presences on top of vegetation
 plot(preds$vegetation, col=cl)
 points(presences, pch=19)
 
-# same for precipitation
+# Plot only precipitation and the presences on top of precipitation
 plot(preds$precipitation, col=cl)
 points(presences, pch=19)
-
 
 # pch argument in r
 # points scattered in space
@@ -110,26 +108,33 @@ datasdm
 m1 <- sdm(Occurrence~temperature+elevation+precipitation+vegetation, data=datasdm, method="glm") 
 # generalized linear model
 # where the y variable = Occurrence , x variable = all the preds 
+# y = a + bi*xi 
+# a = intercept, line intercepting the y axis
+# bi*xi = the single slope(bi, calculated by the model) multiply by each predictors(xi)
 
-# use the model to make the prediction : probability of presence based on this model 
-# apply the formula to every single predictor
+# The final occurence probability will be the sum of everything (y=a+bx)
+# Use the model to make the prediction : probability of presence based on this model 
+
+# Apply the formula to every single predictor
 p1 <- predict(m1, newdata = preds) 
 p1
 
-# now make the plot of the prediction (p1) : map probability
+# Make the plot of the prediction (p1): map probability
 plot(p1, col=cl)
-# probability of presence of a species 
-# plot the presence on top of this (add)
-points(presences, pch=19)
+# probability of presence of a species (from 0 to 1)
+# plot the presence on top of this (add) to see the goodness of the plot
+points(presences, pch=19) #pch = kind of point characters
 # this is the final map
 # prediction of presence of a species : quite good 
+# since most of the points are exactly located in those parts which there is a higher probability to find the species (yellow parts)
+# On the est part of the model small errors: points in those parts where the probability to find species is lower
 
-# finally stack with everything all together 
 
+# Finally stack with everything all together 
 s1 <- stack(preds, p1) 
 plot(s1, col=cl)
 
-# change the names in the plot of the stack with the function "names"
+# Change all the names in the plot of the stack with the function "names"
 names(s1) <- c("Elevation", "Precipitation", "Temperature", "Vegetation", "Probability")
 plot(s1, col=cl)
 
