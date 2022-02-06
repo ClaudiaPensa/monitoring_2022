@@ -4,6 +4,7 @@
 library(ncdf4)
 library(raster)
 
+
 # Set the working directory 
 setwd("/Users/account2/Desktop/lab/copernicus/")
 
@@ -28,6 +29,7 @@ install.packages("viridis")
 library(viridis)
 library(RStoolbox) 
 library(ggplot2)
+library(patchwork)
 
 # ggplot and add geom raster, the geometry we want to use (e.g. histograms) 
 ggplot() + 
@@ -41,16 +43,19 @@ scale_fill_viridis(option="cividis") +
 ggtitle("cividis palette")
 
 #### day 3 #####
-# importing data with lapply function
+# list the file
 rlist <- list.files(pattern= "SWI") 
 rlist
 
+# apply the "lapply" function to the list (rlist)
 list_rast <- lapply(rlist, raster)
-list_rast
+list_rast # in the list_rast I can see the characteristics of the file, such as the dimension, the name...
 
+# stack all the file stack together 
 swistack <- stack(list_rast)
 swistack
 
+# assign the variable to a simple name
 swisummer <- swistack$Surface.State.Flag.1
 swiwinter <- swistack$Surface.State.Flag.2
 
@@ -67,7 +72,6 @@ scale_fill_viridis(option="viridis") +
 ggtitle("Soil water index in winter") #fill = variable name 
 
 # let's patchwork them together
-library(patchwork)
 p1 / p2 
 
 
@@ -76,6 +80,9 @@ p1 / p2
 # longitude from 0 to 20
 # latitude from 30 to 50
 ext <- c(0, 20, 30, 50)
+
+# stack_cropped <- crop(swistack, ext) # this will crop the whole stack, and then single variables (layers) can be extracted
+
 swisummer_cropped <- crop(swisummer,ext)
 swiwinter_cropped <- crop(swiwinter,ext)
 
