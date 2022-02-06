@@ -66,7 +66,7 @@ p1 + p2
 # plotting the frequency distributions of data
 par(mfrow=c(1,2))
 hist(tgr$lst_2000) # histogram in 2000
-hist(tgr$lst_2015) # histogram in 2015
+hist(tgr$lst_2015) # histogram in 2015 # 2 picks 
 
 par(mfrow=c(2,2))
 hist(tgr$lst_2000) # histogram in 2000
@@ -78,6 +78,7 @@ plot(tgr$lst_2010, tgr$lst_2015, xlim=c(12500, 15000), ylim=c(12500, 15000))  #x
 # y = bx + a , where the slope b= 1 and the intercept is a = 0 
 abline(0,1, col="red") 
 # 0 intercept and slope = 1
+# points over the red line are higher than the 2010 
 
 # make a plot with all the histogram and all the regressions for all the variable
 par(mfrow=c(4,4))
@@ -101,6 +102,7 @@ plot(tgr$lst_2015, tgr$lst_2010, xlim=c(12500, 15000), ylim=c(12500, 15000))
 
 # To not do all this plot, we can use pairs function that create Scatteplot Matrices
 pairs(tgr)
-
+# distribution of the data show that there is a rising in lower t° during last year
+# histograms 
 
 
