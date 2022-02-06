@@ -4,6 +4,7 @@
 # Proxy: LST
 # Land surface temperature : is the radiative skin temperature of the land surface
 
+# library(ncdf4) 
 library(raster)
 library(ggplot2)
 library(RStoolbox)
@@ -18,6 +19,7 @@ setwd("/Users/account2/Desktop/lab/greenland/")
 rlist <- list.files(pattern="lst")
 rlist
 
+# Apply the raster function to the list with the "lapply" function 
 import <- lapply(rlist, raster)
 import
 
