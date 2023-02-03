@@ -1,0 +1,56 @@
+#### 03/02/23 first attempt ####
+# I decided to study the NDVI of the Po Valley, a highly cultivated area, to assess how NDVI varies over months and years as t° changes
+# using sentinel2 data
+
+
+#  First of all we need to install addictional packages usefull to run my project with the function install.packages
+# packages usefull are "tidyr", "rgdal"* , "ggplot2"*, "terra"*, "leaflet", "rasterVis", "gridExtra"* , "RColorBrewer", "plotly"
+# * = already imported in R during the lessons 
+
+#### tidyr package #####
+# tidyr package : Tidy Messy Data Tools to help to create tidy data, 
+# where each column is a variable, each row is an observation, and each cell contains a single value
+# link: https://cran.r-project.org/web/packages/tidyr/index.html
+
+#### rgdal package ####
+# rgdal package: Bindings for the 'Geospatial' Data Abstraction Library 
+# Provides bindings to the 'Geospatial' Data Abstraction Library ('GDAL') (>= 1.11.4) 
+# and access to projection/transformation operations from the 'PROJ' library. 
+# link: https://cran.r-project.org/web/packages/rgdal/index.html
+
+#### ggplot2 package ####
+# ggplot2 package: Create Elegant Data Visualisations Using the Grammar of Graphics
+# A system for 'declaratively' creating graphics, based on "The Grammar of Graphics". 
+# You provide the data, tell 'ggplot2' how to map variables to aesthetics, what graphical primitives to use, and it takes care of the details.
+# link: https://cran.r-project.org/web/packages/ggplot2/index.html
+
+#### terra package ####
+# terra package: Spatial Data Analysis
+# Methods for spatial data analysis with vector (points, lines, polygons) and raster (grid) data.
+# link: https://cran.r-project.org/web/packages/terra/index.html
+
+#### leaflet package ####
+# leaflet package: Create Interactive Web Maps with the JavaScript 'Leaflet' Library
+# Create and customize interactive maps using the 'Leaflet' JavaScript library and the 'htmlwidgets' package
+# link: https://cran.r-project.org/web/packages/leaflet/index.html
+
+#### rasterVis package #### 
+# rasterVis package: Visualization Methods for Raster Data
+# Methods for enhanced visualization and interaction with raster data
+# link: https://cran.r-project.org/web/packages/rasterVis/index.html
+
+#### gridExtra package ####
+# gridExtra package: Miscellaneous Functions for "Grid" Graphics
+# Provides a number of user-level functions to work with "grid" graphics, notably to arrange multiple grid-based plots on a page, and draw tables.
+# link: https://cran.r-project.org/web/packages/gridExtra/index.html
+
+#### RColorBrewer package ####
+# RColorBrewer package: ColorBrewer Palettes
+# Provides color schemes for maps (and other graphics) designed by Cynthia Brewer as described at http://colorbrewer2.org.
+# simil to ColorRampPalette used during the lessons
+# link: https://cran.r-project.org/web/packages/RColorBrewer/index.html
+
+#### plotly package ####
+# plotly package Create Interactive Web Graphics via 'plotly.js'
+# https://cran.r-project.org/web/packages/plotly/index.html
+
