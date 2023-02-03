@@ -47,10 +47,28 @@
 #### RColorBrewer package ####
 # RColorBrewer package: ColorBrewer Palettes
 # Provides color schemes for maps (and other graphics) designed by Cynthia Brewer as described at http://colorbrewer2.org.
-# simil to ColorRampPalette used during the lessons
+# similar to ColorRampPalette used during the lessons
 # link: https://cran.r-project.org/web/packages/RColorBrewer/index.html
 
 #### plotly package ####
 # plotly package Create Interactive Web Graphics via 'plotly.js'
 # https://cran.r-project.org/web/packages/plotly/index.html
 
+######### try to run something in R ####### 
+
+install.packages("tidyr")
+install.packages("rgdal")
+install.packages("ggplot2")
+install.packages("terra")
+install.packages("leaflet")
+install.packages("rasterVis")
+install.packages("gridExtra")
+install.packages("RColorBrewer")
+install.packages("plotly")
+
+# all the packages are imported into R 
+
+# Now set the working directory 
+setwd("/Users/account2/Desktop/exam_monitoring")
+
+# load shp file of the study area and the shp file of the points of interest 
