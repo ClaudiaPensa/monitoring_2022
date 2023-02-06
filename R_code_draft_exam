@@ -76,7 +76,7 @@ install.packages("plotly")
 # all the packages are imported into R 
 
 
-
+library(tidyr)
 library(terra)
 library(leaflet)
 library(rasterVis)
@@ -94,16 +94,18 @@ setwd("/Users/account2/Desktop/exam_monitoring")
 # load shp file of the study area and the shp file of the points of interest 
 
 #try to "read" the study area in r 
-Study_Area <- readOGR("Crop_area.shp")
-points_SA <- readOGR("Point_of_interest.shp")
+Study_Area <- readOGR("Study_Area.shp")
+points_SA <- readOGR("Point__SA.shp")
+
+points_S_A <- readOGR("point_s_a.shp")
 
 Study_Area2 <- spTransform(Study_Area, CRS("+proj=utm +zone=32 +datum=WGS84 +units=m"))
-
+points_SA2 <- spTransform(points_S_A, CRS("+proj=utm +zone=32 +datum=WGS84 +units=m"))
 #try to plot a map with the study area poligon using the leaflet package
 
 map <- leaflet(sizingPolicy = leafletSizingPolicy(defaultHeight = 200, viewer.suppress = TRUE, knitr.figure = FALSE)) %>%
        addProviderTiles(providers$Esri.NatGeoWorldMap) %>%
-       addPolygons(data = Study_Area2,
+       addPolygons(data = Study_Area,
        stroke = FALSE,
        smoothFactor = 0.5
                  )
@@ -163,20 +165,69 @@ plot(Study_Area2, add=TRUE, border='yellow', lwd=5)
 
 S2_stack_crop <- crop(S2_stack, Study_Area2)
 par(mfrow=c(1,2))
-plotRGB (S2_stack_crop, r=3, g=2, b=1, scale=maxValue(S2[[2]]), stretch='hist')
-plotRGB (S2_stack_crop, r=4, g=3, b=2, scale=maxValue(S2[[2]]), stretch='hist')
+#plotRGB (S2_stack_crop, r=3, g=2, b=1, scale=maxValue(S2[[2]]), stretch='hist')
+#plotRGB (S2_stack_crop, r=4, g=3, b=2, scale=maxValue(S2[[2]]), stretch='hist')
 
+plotRGB (S2_stack_crop, r=3, g=2, b=1, scale=maxValue(S2[[2]]), stretch='lin')
+plotRGB (S2_stack_crop, r=4, g=3, b=2, scale=maxValue(S2[[2]]), stretch='lin')
 
 #Derive NDVI with for loop cycle 
-NDVI <- list()
+# I have 5 products so I expect 5 NDVI 
+NDVI <- list() #create a variable that will be a list containing all the NDVI 
+
+# for every elements (i) that goes from 1 to length of S2(=20)/4 = 5 (prods) I want that for the first element of my list ->
+# NDVI[[i]] I overlay ((i-1)*4+3) for example: when i = 1 --> ((i-1)*4+3) is equal to (1-1)*4+3 = 3 --> has to take the S2_stack_crop in position n.3 (Red band)
+# and than the same thing with the formula (i - 1)*4+4) that allows me to take the S2_stack_crop in position n.4 that correspond to the Band8 = NIR
+# the function (y-x)/(y+x) is the formula for the NDVI (NIR-R)/(NIR+R)
+
 for (i in 1:(length(S2)/4)) {
   NDVI[[i]] <- overlay(S2_stack_crop[[((i-1)*4+3)]], S2_stack_crop[[((i - 1)*4+4)]], fun = function(x,y) (y-x)/(y+x))
   names(NDVI[[i]]) <- paste0("NDVI_", strsplit(strsplit(names(S2_stack_crop[[(i-1)*4+4]]), "_")[[1]][2], "T")[[1]][1])
 }
 NDVI
-# doesn't work (too slow)
-# I cropped out the study area because otherwise it was too slow to load the files 
-### NOW WORKS #####
+
+# NDVI are normalized from -1 to 1
+
+#### WORKS #####
+
+#custom color
+
+breaks <- c(-1, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1)
+pal <- brewer.pal(11, "RdYlGn")
+mapTheme <- rasterTheme(region = pal)
+mapTheme$fontsize$text = 15
+
+
+# Plot NDVI & points of interest
+levelplot(stack(NDVI), scales=list(draw=FALSE), colorkey=FALSE, par.settings=mapTheme) +
+layer(sp.points(points_SA, pch=13, col=69, bg='red', cex=1, lwd=1 ))
+#pch,col,bg, cex and lwd  are index for the visualization
+#latticeExtra::layer bcs geom is not defined
+
+#points_of_int <- readOGR("Crops_point.shp")
+#points_SA2 <- spTransform(points_of_int, CRS("+proj=utm +zone=32 +datum=WGS84 +units=m"))
+
+
+#extract pixel value from the point of interest
+NDVI_points <- lapply(NDVI, FUN=function (NDVI) {extract(NDVI, points_SA, method='bilinear', df=TRUE)})
+NDVI_points[1]
+
+NDVI_points_df <- do.call("cbind", NDVI_points)
+
+#Clean df - remove duplicate columns
+NDVI_points_df <- NDVI_points_df[, !duplicated(colnames(NDVI_points_df))]
+NDVI_points_df
+
+#arrange df
+NDVI_points_df <- gather(NDVI_points_df, key = Date, value = value, -ID)
+NDVI_points_df
+
+#Plot NDVI temperal series
+ndvi_plot <- ggplot(data=NDVI_points_df, aes(x=Date, y=value, group=ID, color=ID)) + 
+  geom_line() +
+  geom_point()
+
+embed_notebook(ggplotly(), height="500")
 
 
 
