@@ -1,14 +1,13 @@
 #### 03/02/23 first attempt ####
+
+#### INTRO ####
+
 # I decided to study the NDVI of the Po Valley, a highly cultivated area, to assess how NDVI varies over months and years as t° changes
 # using sentinel2 data
 
 #### study area ####
 # the study area under consideration is the padana plain with particular focus on the area south of Parma 
-# To get the shp of the study area I converted a tiff image of the Po Valley to shp using Qgis
-# link tiff file https://www.esa.int/Space_in_Member_States/Italy/Immagine_EO_della_Settimana_Pianura_Padana 
-# 
-
-
+# I have defined the study area on qgis, including points of interest that I will need later on 
 
 #  First of all we need to install addictional packages usefull to run my project with the function install.packages
 # packages usefull are "tidyr", "rgdal"* , "ggplot2"*, "terra"*, "leaflet", "rasterVis", "gridExtra"* , "RColorBrewer", "plotly"
@@ -61,7 +60,7 @@
 # plotly package Create Interactive Web Graphics via 'plotly.js'
 # https://cran.r-project.org/web/packages/plotly/index.html
 
-######### try to run something in R ####### 
+#### PROJECT ####
 
 install.packages("tidyr")
 install.packages("rgdal")
@@ -97,10 +96,10 @@ setwd("/Users/account2/Desktop/exam_monitoring")
 Study_Area <- readOGR("Study_Area.shp")
 points_SA <- readOGR("Point__SA.shp")
 
-points_S_A <- readOGR("point_s_a.shp")
+#points_S_A <- readOGR("point_s_a.shp")
 
 Study_Area2 <- spTransform(Study_Area, CRS("+proj=utm +zone=32 +datum=WGS84 +units=m"))
-points_SA2 <- spTransform(points_S_A, CRS("+proj=utm +zone=32 +datum=WGS84 +units=m"))
+#points_SA2 <- spTransform(points_S_A, CRS("+proj=utm +zone=32 +datum=WGS84 +units=m"))
 #try to plot a map with the study area poligon using the leaflet package
 
 map <- leaflet(sizingPolicy = leafletSizingPolicy(defaultHeight = 200, viewer.suppress = TRUE, knitr.figure = FALSE)) %>%
@@ -112,7 +111,7 @@ map <- leaflet(sizingPolicy = leafletSizingPolicy(defaultHeight = 200, viewer.su
                  
 map
 
-# FUNZIONA #
+# IT WORKS #
 
 # Load Sentinel-2 data of the study area that goes from may 2022 to october 2022
 # setting the specific folder where the data are 
@@ -135,9 +134,7 @@ S2 <- lapply(1:length(S2), function (x) {raster(S2[x])})
 # input = 1 : length(S2) = list of file and I want to apply to each element of the list a specific funcion to load the file into r (with the raster function)
 # raster function load raster file into r 
 
-S2
-
-# visualize the product 
+S2 # visualize the product 
 
 # setting the layout 
 # create a stack and putting in together the raster list file 
@@ -156,6 +153,7 @@ S2_stack <- stack(S2)
 # the blue band (=2 in Sentinel2) is in the index 1
 # the green band (=3 in Sentinel2) is in the index 2
 # the red band (=4 in sentinel2) is in the index 3
+
 par(mfrow=c(1,2))
 plotRGB (S2_stack, r=3, g=2, b=1, scale=maxValue(S2[[2]]), stretch='hist') #TrueColor image 
 plot(Study_Area2, add=TRUE, border='yellow', lwd=5) #add the study area on the previous plot with add=TRUE
@@ -188,7 +186,7 @@ NDVI
 
 # NDVI are normalized from -1 to 1
 
-#### WORKS #####
+#### IT WORKS #####
 
 #custom color
 
@@ -227,7 +225,7 @@ ndvi_plot <- ggplot(data=NDVI_points_df, aes(x=Date, y=value, group=ID, color=ID
   geom_line() +
   geom_point()
 
-embed_notebook(ggplotly(), height="500")
+# embed_notebook(ggplotly(), height="500") #Pacchetto non va
 
 
 
