@@ -2,6 +2,13 @@
 # I decided to study the NDVI of the Po Valley, a highly cultivated area, to assess how NDVI varies over months and years as t° changes
 # using sentinel2 data
 
+#### study area ####
+# the study area under consideration is the padana plain with particular focus on the area south of Parma 
+# To get the shp of the study area I converted a tiff image of the Po Valley to shp using Qgis
+# link tiff file https://www.esa.int/Space_in_Member_States/Italy/Immagine_EO_della_Settimana_Pianura_Padana 
+# 
+
+
 
 #  First of all we need to install addictional packages usefull to run my project with the function install.packages
 # packages usefull are "tidyr", "rgdal"* , "ggplot2"*, "terra"*, "leaflet", "rasterVis", "gridExtra"* , "RColorBrewer", "plotly"
@@ -68,7 +75,84 @@ install.packages("plotly")
 
 # all the packages are imported into R 
 
+
+
+library(terra)
+library(leaflet)
+library(rasterVis)
+library(gridExtra)
+library(RColorBrewer)
+library(plotly)
+library(raster)
+library(rgdal)
+library(ggplot2)
+library(tidyr)
+
 # Now set the working directory 
 setwd("/Users/account2/Desktop/exam_monitoring")
 
 # load shp file of the study area and the shp file of the points of interest 
+
+#try to "read" the study area in r 
+Study_Area <- readOGR("Study_Area.shp")
+points_SA <- readOGR("Points_of_interest.shp")
+#try to plot a map with the study area poligon using the leaflet package
+
+map <- leaflet(sizingPolicy = leafletSizingPolicy(defaultHeight = 200, viewer.suppress = TRUE, knitr.figure = FALSE)) %>%
+       addProviderTiles(providers$Esri.NatGeoWorldMap) %>%
+       addPolygons(data = Study_Area,
+       stroke = FALSE,
+       smoothFactor = 0.5
+                 )
+                 
+map
+
+# FUNZIONA #
+
+# Load Sentinel-2 data of the study area that goes from may 2022 to october 2022
+# setting the specific folder where the data are 
+# the data used are derived from Sentinel-2 copernicus open access hub website and I decide to use 
+# the level 2A of Sentinel - 2 that use the bottom of the atm reflectance 
+# and create the variable S2 = sentinel - 2 
+
+S2 <- ("/Users/account2/Desktop/exam_monitoring/Sentinel2/")
+
+# overwrite the variable S2 with a list by using the list.files function of R
+
+S2 <- list.files(S2, recursive = TRUE, full.names = TRUE, pattern = "B0[2348]_10m.jp2$")
+
+# S2 variable pointing to the path /Users/account2/Desktop/exam_monitoring/sentinel2
+# recursive is important to go into the different subfolders within the sentinel2 folder
+# look for files with a specific pattern that is = "B0[2348]_10m.jp2s" 
+# 2348 are the bands
+
+S2 <- lapply(1:length(S2), function (x) {raster(S2[x])})
+# input = 1 : length(S2) = list of file and I want to apply to each element of the list a specific funcion to load the file into r (with the raster function)
+# raster function load raster file into r 
+
+S2[1]
+
+# visualize the product 
+
+# setting the layout 
+# create a stack and putting in together the raster list file 
+
+S2_stack <- stack(S2)
+
+# Plot True/False images 
+# using the plotRGB of the raster package 
+# plotRGB has a multilayer stack where each layer is a band 
+# I need to specify in which layer I have the red, green and blue band
+# since the file are imported in the order 2348, 
+# the blue band (=2 in Sentinel2) is in the index 1
+# the green band (=3 in Sentinel2) is in the index 2
+# the red band (=4 in sentinel2) is in the index 3
+plotRGB (S2_stack, r=3, g=2, b=1, scale=maxValue(S2[[2]]), stretch='hist') #TrueColor image 
+plot(Study_Area, add=TRUE, border='yellow', lwd=5) # add the study area on the previous plot
+plotRGB (S2_stack, r=4, g=3, b=2, scale=maxValue(S2[[2]]), stretch='hist') #FalseColor image
+plot(Study_Area, add=TRUE, border='yellow', lwd=5)
+
+
+
+       
+
