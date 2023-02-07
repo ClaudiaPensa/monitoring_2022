@@ -85,7 +85,6 @@ library(plotly)
 library(raster)
 library(rgdal)
 library(ggplot2)
-library(tidyr)
 
 # Now set the working directory 
 setwd("/Users/account2/Desktop/exam_monitoring")
@@ -94,7 +93,8 @@ setwd("/Users/account2/Desktop/exam_monitoring")
 
 #try to "read" the study area in r 
 Study_Area <- readOGR("Study_Area.shp")
-points_SA <- readOGR("Point__SA.shp")
+points_SA <- readOGR("poi.shp")
+points_SA
 
 #points_S_A <- readOGR("point_s_a.shp")
 
@@ -162,12 +162,19 @@ plot(Study_Area2, add=TRUE, border='yellow', lwd=5)
 
 
 S2_stack_crop <- crop(S2_stack, Study_Area2)
+jpeg(file="S2_stack_crop.jpg") #create a jpg file into the main folder
 par(mfrow=c(1,2))
-#plotRGB (S2_stack_crop, r=3, g=2, b=1, scale=maxValue(S2[[2]]), stretch='hist')
-#plotRGB (S2_stack_crop, r=4, g=3, b=2, scale=maxValue(S2[[2]]), stretch='hist')
+#plotRGB (S2_stack_crop, r=3, g=2, b=1, scale=maxValue(S2[[2]]),stretch='hist')
+#plotRGB (S2_stack_crop, r=4, g=3, b=2, scale=maxValue(S2[[2]]),stretch='hist')
 
-plotRGB (S2_stack_crop, r=3, g=2, b=1, scale=maxValue(S2[[2]]), stretch='lin')
-plotRGB (S2_stack_crop, r=4, g=3, b=2, scale=maxValue(S2[[2]]), stretch='lin')
+#try to plot both graph with a title but without the x and y axes --> fail
+#plotRGB (S2_stack_crop, r=3, g=2, b=1, scale=maxValue(S2[[2]]), axes=TRUE,  main="True Color", col.axis="white",col.lab="white",tck=0,stretch='lin')
+#plotRGB (S2_stack_crop, r=4, g=3, b=2, scale=maxValue(S2[[2]]),axes=TRUE, main="False Color", col.axis="white",col.lab="white",tck=0, stretch='lin')
+
+plotRGB (S2_stack_crop, r=3, g=2, b=1, scale=maxValue(S2[[2]]),stretch='lin')
+plotRGB (S2_stack_crop, r=4, g=3, b=2, scale=maxValue(S2[[2]]),stretch='lin')
+
+#dev.off()
 
 #Derive NDVI with for loop cycle 
 # I have 5 products so I expect 5 NDVI 
@@ -197,34 +204,40 @@ mapTheme$fontsize$text = 15
 
 
 # Plot NDVI & points of interest
-levelplot(stack(NDVI), scales=list(draw=FALSE), colorkey=FALSE, par.settings=mapTheme) +
-layer(sp.points(points_SA, pch=13, col=69, bg='red', cex=1, lwd=1 ))
+
+points_SA2 <- spTransform(points_SA, CRS("+proj=utm +zone=32 +datum=WGS84 +units=m")) #change the csr
+jpeg(file="NDVI_&_points.jpg") #create a jpg file into the main folder
+levelplot(stack(NDVI), scales=list(draw=FALSE), colorkey=FALSE, par.settings=mapTheme ) +
+latticeExtra::layer(sp.points(points_SA2, pch=13, col=69, bg='red', cex=1, lwd=1 ))
 #pch,col,bg, cex and lwd  are index for the visualization
 #latticeExtra::layer bcs geom is not defined
 
-#points_of_int <- readOGR("Crops_point.shp")
-#points_SA2 <- spTransform(points_of_int, CRS("+proj=utm +zone=32 +datum=WGS84 +units=m"))
-
+#dev.off()
 
 #extract pixel value from the point of interest
-NDVI_points <- lapply(NDVI, FUN=function (NDVI) {extract(NDVI, points_SA, method='bilinear', df=TRUE)})
+NDVI_points <- lapply(NDVI, FUN=function (NDVI) {extract(NDVI, points_SA2, method='bilinear', df=TRUE)})
 NDVI_points[1]
 
 NDVI_points_df <- do.call("cbind", NDVI_points)
 
-#Clean df - remove duplicate columns
+#Clean df -> remove duplicate columns
 NDVI_points_df <- NDVI_points_df[, !duplicated(colnames(NDVI_points_df))]
 NDVI_points_df
 
 #arrange df
+write.table(NDVI_points_df, file="NDVI_points_dftxt") # to export a file txt with the value of df
 NDVI_points_df <- gather(NDVI_points_df, key = Date, value = value, -ID)
 NDVI_points_df
 
 #Plot NDVI temperal series
+jpeg(file="ndvi_plot.jpg")
 ndvi_plot <- ggplot(data=NDVI_points_df, aes(x=Date, y=value, group=ID, color=ID)) + 
   geom_line() +
   geom_point()
 
+ndvi_plot
+dev.off()
+ 
 # embed_notebook(ggplotly(), height="500") #Pacchetto non va
 
 
