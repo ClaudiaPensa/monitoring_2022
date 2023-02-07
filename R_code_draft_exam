@@ -113,7 +113,7 @@ map
 
 # IT WORKS #
 
-# Load Sentinel-2 data of the study area that goes from may 2022 to october 2022
+# Load Sentinel-2 data of the study area that goes from june 2022 to nov 2022 (data of oct not available)
 # setting the specific folder where the data are 
 # the data used are derived from Sentinel-2 copernicus open access hub website and I decide to use 
 # the level 2A of Sentinel - 2 that use the bottom of the atm reflectance 
@@ -141,10 +141,6 @@ S2 # visualize the product
 
 S2_stack <- stack(S2) 
 
-# raster issue : Errore in compareRaster(x) : different extent
-# extent(S2) to find the differences 
-# I found that some files have different names so I change them with files of the same name
-
 # Plot True/False images 
 # using the plotRGB of the raster package 
 # plotRGB has a multilayer stack where each layer is a band 
@@ -154,7 +150,7 @@ S2_stack <- stack(S2)
 # the green band (=3 in Sentinel2) is in the index 2
 # the red band (=4 in sentinel2) is in the index 3
 
-par(mfrow=c(1,2))
+par(mfrow=c(1,2)) #to divide the frame into the desired grid
 plotRGB (S2_stack, r=3, g=2, b=1, scale=maxValue(S2[[2]]), stretch='hist') #TrueColor image 
 plot(Study_Area2, add=TRUE, border='yellow', lwd=5) #add the study area on the previous plot with add=TRUE
 plotRGB (S2_stack, r=4, g=3, b=2, scale=maxValue(S2[[2]]), stretch='hist') #FalseColor image
@@ -215,6 +211,7 @@ latticeExtra::layer(sp.points(points_SA2, pch=13, col=69, bg='red', cex=1, lwd=1
 #dev.off()
 
 #extract pixel value from the point of interest
+#the points are used as reference to extract specific NDVI value and plot temple series 
 NDVI_points <- lapply(NDVI, FUN=function (NDVI) {extract(NDVI, points_SA2, method='bilinear', df=TRUE)})
 NDVI_points[1]
 
@@ -229,7 +226,7 @@ write.table(NDVI_points_df, file="NDVI_points_dftxt") # to export a file txt wit
 NDVI_points_df <- gather(NDVI_points_df, key = Date, value = value, -ID)
 NDVI_points_df
 
-#Plot NDVI temperal series
+#Plot NDVI temporal series
 jpeg(file="ndvi_plot.jpg")
 ndvi_plot <- ggplot(data=NDVI_points_df, aes(x=Date, y=value, group=ID, color=ID)) + 
   geom_line() +
