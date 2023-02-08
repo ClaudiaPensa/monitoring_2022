@@ -2,12 +2,12 @@
 
 #### INTRO ####
 
-# I decided to study the NDVI of the Po Valley, a highly cultivated area, to assess how NDVI varies over months and years as t° changes
+# I decided to study the NDVI of the Po Valley, a highly cultivated area, to assess how NDVI varies over months and years
 # using sentinel2 data
 
 #### study area ####
-# the study area under consideration is the padana plain with particular focus on the area south of Parma 
-# I have defined the study area on qgis, including points of interest that I will need later on 
+# the study area under consideration is the Po Valley with particular focus on the area south of Cremona 
+# I have defined the study area on qgis, including points of interest that I use to create a temporal series of NDVI 
 
 #  First of all we need to install addictional packages usefull to run my project with the function install.packages
 # packages usefull are "tidyr", "rgdal"* , "ggplot2"*, "terra"*, "leaflet", "rasterVis", "gridExtra"* , "RColorBrewer", "plotly"
@@ -32,6 +32,7 @@
 
 #### terra package ####
 # terra package: Spatial Data Analysis
+#replacement for the "raster" package
 # Methods for spatial data analysis with vector (points, lines, polygons) and raster (grid) data.
 # link: https://cran.r-project.org/web/packages/terra/index.html
 
@@ -62,6 +63,7 @@
 
 #### PROJECT ####
 
+#install the packages 
 install.packages("tidyr")
 install.packages("rgdal")
 install.packages("ggplot2")
@@ -72,9 +74,7 @@ install.packages("gridExtra")
 install.packages("RColorBrewer")
 install.packages("plotly")
 
-# all the packages are imported into R 
-
-
+# load the packages into R 
 library(tidyr)
 library(terra)
 library(leaflet)
@@ -94,13 +94,12 @@ setwd("/Users/account2/Desktop/exam_monitoring")
 #try to "read" the study area in r 
 Study_Area <- readOGR("Study_Area.shp")
 points_SA <- readOGR("poi.shp")
-points_SA
-
-#points_S_A <- readOGR("point_s_a.shp")
+Study_Area # to see the details
+points_SA #to see the details
 
 Study_Area2 <- spTransform(Study_Area, CRS("+proj=utm +zone=32 +datum=WGS84 +units=m"))
 #points_SA2 <- spTransform(points_S_A, CRS("+proj=utm +zone=32 +datum=WGS84 +units=m"))
-#try to plot a map with the study area poligon using the leaflet package
+#try to plot an interactive map with the study area poligon using the leaflet package
 
 map <- leaflet(sizingPolicy = leafletSizingPolicy(defaultHeight = 200, viewer.suppress = TRUE, knitr.figure = FALSE)) %>%
        addProviderTiles(providers$Esri.NatGeoWorldMap) %>%
@@ -111,13 +110,20 @@ map <- leaflet(sizingPolicy = leafletSizingPolicy(defaultHeight = 200, viewer.su
                  
 map
 
+#the leaflet function use the  magrittr pipe operator (%>%) 
+#the equivalent without the  magrittr pipe operator (%>%) is: 
+# map <- leaflet()
+# map <- addProviderTiles()
+# map <- addPolygons()
+
+
 # IT WORKS #
 
 # Load Sentinel-2 data of the study area that goes from june 2022 to nov 2022 (data of oct not available)
 # setting the specific folder where the data are 
 # the data used are derived from Sentinel-2 copernicus open access hub website and I decide to use 
 # the level 2A of Sentinel - 2 that use the bottom of the atm reflectance 
-# and create the variable S2 = sentinel - 2 
+# and create the variable S2 = sentinel2 
 
 S2 <- "/Users/account2/Desktop/exam_monitoring/Sentinel2/"
 
@@ -156,9 +162,9 @@ plot(Study_Area2, add=TRUE, border='yellow', lwd=5) #add the study area on the p
 plotRGB (S2_stack, r=4, g=3, b=2, scale=maxValue(S2[[2]]), stretch='hist') #FalseColor image
 plot(Study_Area2, add=TRUE, border='yellow', lwd=5)
 
-
+#crop the data so that I use only the data within the study area  
 S2_stack_crop <- crop(S2_stack, Study_Area2)
-jpeg(file="S2_stack_crop.jpg") #create a jpg file into the main folder
+#jpeg(file="S2_stack_crop.jpg") #create a jpg file into the main folder
 par(mfrow=c(1,2))
 #plotRGB (S2_stack_crop, r=3, g=2, b=1, scale=maxValue(S2[[2]]),stretch='hist')
 #plotRGB (S2_stack_crop, r=4, g=3, b=2, scale=maxValue(S2[[2]]),stretch='hist')
@@ -170,9 +176,9 @@ par(mfrow=c(1,2))
 plotRGB (S2_stack_crop, r=3, g=2, b=1, scale=maxValue(S2[[2]]),stretch='lin')
 plotRGB (S2_stack_crop, r=4, g=3, b=2, scale=maxValue(S2[[2]]),stretch='lin')
 
-#dev.off()
+#dev.off() #to save the jpg file
 
-#Derive NDVI with for loop cycle 
+#Derive NDVI with for loop  
 # I have 5 products so I expect 5 NDVI 
 NDVI <- list() #create a variable that will be a list containing all the NDVI 
 
@@ -202,9 +208,12 @@ mapTheme$fontsize$text = 15
 # Plot NDVI & points of interest
 
 points_SA2 <- spTransform(points_SA, CRS("+proj=utm +zone=32 +datum=WGS84 +units=m")) #change the csr
-jpeg(file="NDVI_&_points.jpg") #create a jpg file into the main folder
+
+#jpeg(file="NDVI_&_points.jpg") #create a jpg file into the main folder
+
 levelplot(stack(NDVI), scales=list(draw=FALSE), colorkey=FALSE, par.settings=mapTheme ) +
 latticeExtra::layer(sp.points(points_SA2, pch=13, col=69, bg='red', cex=1, lwd=1 ))
+
 #pch,col,bg, cex and lwd  are index for the visualization
 #latticeExtra::layer bcs geom is not defined
 
@@ -213,7 +222,7 @@ latticeExtra::layer(sp.points(points_SA2, pch=13, col=69, bg='red', cex=1, lwd=1
 #extract pixel value from the point of interest
 #the points are used as reference to extract specific NDVI value and plot temple series 
 NDVI_points <- lapply(NDVI, FUN=function (NDVI) {extract(NDVI, points_SA2, method='bilinear', df=TRUE)})
-NDVI_points[1]
+NDVI_points[1] #example to see the details
 
 NDVI_points_df <- do.call("cbind", NDVI_points)
 
@@ -235,7 +244,7 @@ ndvi_plot <- ggplot(data=NDVI_points_df, aes(x=Date, y=value, group=ID, color=ID
 ndvi_plot
 dev.off()
  
-# embed_notebook(ggplotly(), height="500") #Pacchetto non va
+# embed_notebook(ggplotly(), height="500") #I tried to load the package and to put labels on the different trends plotted on the graph #fail
 
 
 
